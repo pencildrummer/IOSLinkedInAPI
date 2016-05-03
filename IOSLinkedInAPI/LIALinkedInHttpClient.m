@@ -133,5 +133,37 @@
   [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
+- (UIViewController*)topViewController {
+    return [self findTopViewControllerFromController:[[UIApplication sharedApplication] keyWindow].rootViewController];
+}
+
+- (UIViewController*)findTopViewControllerFromController:(UIViewController *)fromController {
+    
+    if (fromController.presentedViewController != nil) {
+        return [self findTopViewControllerFromController:fromController.presentedViewController];
+    } else if ([fromController isKindOfClass:[UISplitViewController class]]) {
+        UISplitViewController *splitController = (UISplitViewController*)fromController;
+        if (splitController.viewControllers.count > 0) {
+            return [self findTopViewControllerFromController:splitController.viewControllers.lastObject];
+        } else {
+            return splitController;
+        }
+    } else if ([fromController isKindOfClass:[UINavigationController class]]) {
+        UINavigationController *navigationController = (UINavigationController*)fromController;
+        if (navigationController.viewControllers.count > 0) {
+            return [self findTopViewControllerFromController:navigationController.topViewController];
+        } else {
+            return navigationController;
+        }
+    } else if ([fromController isKindOfClass:[UITabBarController class]]) {
+        UITabBarController *tabBarController = (UITabBarController*)fromController;
+        if (tabBarController.viewControllers.count > 0) {
+            return [self findTopViewControllerFromController:tabBarController.selectedViewController];
+        } else {
+            return tabBarController;
+        }
+    }
+    return fromController;
+}
 
 @end
